@@ -31,9 +31,9 @@ Follow these steps to run the project locally:
 
 ### 1️⃣ Clone the repository
 
-git clone https://github.com/Diwakar-796/To-Do-v2.git
+git clone https://github.com/Diwakar-796/to-do-v2.git
 
-cd To-Do-v2
+cd to-do-v2
 
 ### 2️⃣ Create virtual environment
 
