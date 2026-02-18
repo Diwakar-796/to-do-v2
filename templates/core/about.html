@@ -1,0 +1,60 @@
+{% extends "core/base.html" %}
+
+{% block header %}{% endblock %}
+{% block cards %}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-center align-items-center"
+     style="min-height: 100vh;">
+
+    <div class="card shadow-lg bg-dark text-light p-4" style="max-width: 700px; width: 100%; border-radius: 15px;">
+
+        <h2 class="text-center mb-3">About This To-Do App</h2>
+
+        <p class="lead">
+            This To-Do App is a lightweight, fast, and beautifully designed productivity tool
+            built with Django and Bootstrap. The goal is simple — help users track their daily
+            tasks, stay organized, and achieve more with clarity and focus.
+        </p>
+
+        <hr class="border-secondary my-4">
+
+        <h4>✨ What This App Offers</h4>
+        <ul class="list-unstyled mt-3">
+            <li>• Add, Edit, Update & Delete Tasks</li>
+            <li>• Mark tasks as completed</li>
+            <li>• Visual task progress with progress bar</li>
+            <li>• User authentication (Login / Signup)</li>
+            <li>• Smooth UI with modern dark theme</li>
+            <li>• Mobile-friendly responsive layout</li>
+        </ul>
+
+        <hr class="border-secondary my-4">
+
+        <h4>📌 Why I Built This Project</h4>
+        <p>
+            This project is part of my backend development journey.  
+            I built this app to improve my skills in Django, CRUD operations,
+            user authentication, and UI design. This application will continue
+            to grow and receive new features as I progress.
+        </p>
+
+        <hr class="border-secondary my-4">
+
+        <h4>📞 Contact / Connect</h4>
+        <p>
+            Have suggestions or feedback?  
+            Feel free to send your thoughts using the Feedback page.
+            <a href="{% url 'core:feedback' %}" class="text-info">Send us feedback</a>
+        </p>
+
+        <div class="text-center mt-4">
+            <a href="{% url 'core:home' %}" class="btn btn-primary">
+                <i class="bi bi-arrow-left"></i> Back to Home
+            </a>
+        </div>
+
+    </div>
+
+</div>
+{% endblock %}

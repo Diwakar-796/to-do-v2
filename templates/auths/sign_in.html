@@ -1,0 +1,63 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block header %}{% endblock %}
+{% block cards %}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-center align-items-center" style="min-height: 100vh;">
+    <div class="card shadow-lg p-3 bg-dark text-light" style="width:100%; max-width: 450px;">
+        <div class="card-body">
+            <!-- Back button and title -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <a href="{% url 'core:home' %}" class="text-light text-decoration-none">
+                    <i class="bi bi-arrow-left fs-5"></i>
+                </a>
+                <h3 class="text-center flex-grow-1 m-0">Login</h3>
+            </div>
+
+            {% comment %} <form method="post" action="{% url 'login' %}">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button type="submit">Login</button>
+            </form> {% endcomment %}
+
+            <!-- Sign In Form --> 
+            <form method="POST" action="{% url 'auths:sign_in' %}">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label for="email" class="form-label text-light">Email</label>
+                    <input type="text" class="form-control bg-dark text-light border-light" id="email" name="email" placeholder="Enter email" required>
+                </div>
+                <div class="mb-3">
+                    <label for="password" class="form-label text-light">Password</label>
+                    <input type="password" class="form-control bg-dark text-light border-light" id="password" name="password" placeholder="Enter password" required>
+                </div>
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="bi bi-box-arrow-in-right me-2"></i> Login
+                </button>
+            </form>
+            <br>
+            <p class="text-center">Forget Password?
+                <span>
+                    <a href="#">Reset Password</a>
+                </span>
+            </p> 
+
+            <!-- Divider -->
+            <hr class="my-4 border-light">
+
+            <!-- Links -->
+            <div class="text-center">
+                <p>
+                    Don’t have an account?
+                    <span>
+                        <a href="{% url 'auths:sign_up' %}" class="text-info text-decoration-none">Sign Up</a>
+                    </span>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

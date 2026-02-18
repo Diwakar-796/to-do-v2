@@ -1,0 +1,150 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>To Do App</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    body {
+      background-color: #0d1117;
+      color: #c9d1d9;
+      min-height: 100vh;
+    }
+    .navbar {
+      background-color: #161b22 !important;
+    }
+    .card {
+      background-color: #161b22;
+      border: 1px solid #30363d;
+    }
+    .table {
+      color: #c9d1d9;
+    }
+    .table thead {
+      background-color: #21262d;
+    }
+    .badge {
+      font-size: 0.8rem;
+    }
+    .text-muted {
+      color: #8b949e !important;
+    }
+  </style>
+</head>
+<body class="d-flex flex-column min-vh-100">
+
+  <!-- Navbar -->
+  {% block navbar %}
+  <nav class="navbar navbar-expand-lg navbar-dark px-3">
+    <a class="navbar-brand fw-bold text-primary" href="{% url 'core:home' %}">To Do App</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item"><a class="nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}" href="{% url 'core:home' %}">Dashboard</a></li>
+        <li class="nav-item"><a class="nav-link {% if request.resolver_match.url_name == 'leaderboard' %}active{% endif %}" href="#">Leaderboard</a></li>
+        {% if user.is_authenticated %}
+          <li class="nav-item"><a class="nav-link {% if request.resolver_match.url_name == 'profile' %}active{% endif %}" href="{% url 'auths:profile' %}">Profile</a></li>
+        {% else %}
+          <li class="nav-item"><a class="nav-link {% if request.resolver_match.url_name == 'sign_in' %}active{% endif %}" href="{% url 'auths:sign_in' %}">Login</a></li>
+        {% endif %}
+        <li class="nav-item"><a class="nav-link {% if request.resolver_match.url_name == 'about' %}active{% endif %}" href="{% url 'core:about' %}">About</a></li>
+      </ul>
+    </div>
+  </nav>
+  {% endblock %}
+
+  <!-- alert -->
+  {% if messages %}
+  <div class="container mt-3">
+      {% for message in messages %}
+          <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+              {{ message }}
+              <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+          </div>
+      {% endfor %}
+  </div>
+  {% endif %}
+
+  <!-- Main Container -->
+  <div class="container mt-4 mb-5">
+
+    <!-- Header -->
+    {% block header %}
+    <div class="card p-3 mb-4 shadow-sm d-flex flex-row justify-content-between align-items-center">
+      <div>
+        <h5>Welcome, <strong>{% if request.user.is_authenticated %} {{ request.user.username|default:"User" }} {% else %}  User {% endif %}</strong> 👋</h5>
+        <small>Keep up your streak! You’ve planned {{ total_task }} task{{ today_tasks|pluralize }} today.</small>
+      </div>
+      <div class="text-end">
+        <h4 id="" class="fw-bold text-info">Today: {% now "d M Y" %}</h4>
+      </div>
+    </div>
+    {% endblock %}
+
+    <!-- Stats Cards -->
+    {% block cards %}
+    <div class="row g-3">
+      <div class="col-md-3">
+        <div class="card text-center shadow-sm border-0">
+          <div class="card-body">
+            <i class="bi bi-coin fs-2 text-warning"></i>
+            <h5 class="mt-2">{{ request.user.coins_earned|default:"0" }}</h5>
+            <small>Total Coins</small>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card text-center shadow-sm border-0">
+          <div class="card-body">
+            <i class="bi bi-check2-circle fs-2 text-success"></i>
+            <h5 class="mt-2">{{ total_completed_task|default:"0" }}</h5>
+            <small>Tasks Done</small>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card text-center shadow-sm border-0">
+          <div class="card-body">
+            <i class="bi bi-clock-history fs-2 text-warning"></i>
+            <h5 class="mt-2">{{ remaining_task|default:"0" }}</h5>
+            <small>Pending Tasks</small>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card text-center shadow-sm border-0">
+          <div class="card-body">
+            <i class="bi bi-fire fs-2 text-danger"></i>
+            <h5 class="mt-2">7 Days</h5>
+            <small>Streak</small>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endblock %}
+
+    <!-- Stats Cards -->
+    {% block content %}{% endblock %}
+
+  </div>
+
+  {% block footer %}
+  <!-- Footer -->
+  <footer class="d-flex bg-dark text-white justify-content-center py-3 mt-auto">
+    <p class="mb-0">&copy; {{ year }} To-Do App | &nbsp;</p>
+    <a class="text-primary text-decoration-underline" href="#">Support us ❤!</a>
+  </footer>
+  {% endblock %}
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>

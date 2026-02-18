@@ -1,0 +1,140 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}Task Detail{% endblock %}
+{% block header %}{% endblock %}
+{% block cards %}{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-5 min-vh-100">
+  <div class="row justify-content-center">
+    
+    <!-- Left Panel: Task Details -->
+    <div class="col-md-4">
+      <div class="card bg-dark border-0 shadow-lg p-4 rounded-4">
+        <h4 class="text-white mb-3">{{ task.title }}</h4>
+        <p class="text-light small mb-1"><strong>Status:</strong> {% if task.is_done %} Completed {% else %} Incomplete {% endif %}</p>
+        <p class="text-light small mb-1"><strong>Priority:</strong> {{ task.get_priority_display }}</p>
+        <p class="text-light small mb-1"><strong>Category:</strong> {{ task.category.title|default:"No Category" }}</p>
+        <p class="text-light small mb-1"><strong>Scheduled:</strong> {{ task.scheduled_time|date:"g:i A, D, d M" }}</p>
+        <p class="text-light small mb-3"><strong>Duration:</strong> {{ task.duration }} minutes</p>
+        {% if task.description %}
+          <div class="mb-3">
+            <h6 class="text-light">Description</h6>
+            <p class="small text-white-50">{{ task.description }}</p>
+          </div>
+        {% endif %}
+        <div class="d-flex justify-content-between mt-4">
+          <button type="button" class="btn btn-success w-50 me-2" data-bs-toggle="modal" data-bs-target="#editTaskModal">
+            <i class="bi bi-pencil-square"></i> Edit
+          </button>
+          <form method="POST" action="{% url 'core:del-task' task.id %}" class="w-50">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger w-100">
+              <i class="bi bi-trash"></i> Delete
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Edit Task Modal -->
+<div class="modal fade" id="editTaskModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content p-4 bg-dark text-light">
+            <div class="modal-header border-0">
+                <h5 class="modal-title">Edit Task</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+
+            <form method="POST" action="{% url 'core:edit-task' task.id %}">
+                {% csrf_token %}
+
+                <input type="hidden" name="task_id" value="{{ task.id }}">
+
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Title</label>
+                        {{ form.title }}
+                    </div>
+
+                    <div class="mb-3 d-flex align-items-center">
+                        <div class="flex-grow-1">
+                            <label class="form-label">Priority</label>
+                            {{ form.priority }}
+                        </div>
+                        &nbsp;&nbsp;
+                        <div class="flex-grow-1">
+                            <label class="form-label">Category</label>
+                            {{ form.category }}
+                        </div>
+                        <button
+                            type="button"
+                            class="btn btn-primary ms-2 mt-4"
+                            data-bs-target="#addCategoryModal"
+                            data-bs-toggle="modal"
+                        >
+                            + Add Category
+                        </button>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Schedule Time</label>
+                            {{ form.scheduled_time }}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Duration (minutes)</label>
+                            {{ form.duration }}
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Description</label>
+                        {{ form.description }}
+                    </div>
+                </div>
+
+                <div class="modal-footer border-0">
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                  <button type="submit" class="btn btn-success">Save</button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+
+<!-- Add Category Modal -->
+<div class="modal fade" id="addCategoryModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content p-4">
+      <div class="modal-header border-0">
+        <h5 class="modal-title">Add New Category</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <form method="POST" action="{% url 'core:add-category' %}">
+        {% csrf_token %}
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label">Category Name</label>
+            <input name="title" type="text" class="form-control" placeholder="e.g. Fitness, Work, Study">
+          </div>
+          <div>
+            <label class="form-label">Is it Valuable?</label>
+            <input type="checkbox">
+          </div>
+        </div>
+        <div class="modal-footer border-0">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-success">Add Category</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

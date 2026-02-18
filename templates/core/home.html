@@ -1,0 +1,309 @@
+{% extends "core/base.html" %} {% load static %}
+
+<!-- Chart + Tasks -->
+{% block content %}
+<div class="row mt-4">
+  <div class="col-lg-4">
+    <div class="card shadow-sm">
+      <div class="card-header bg-transparent border-0">
+        <h6 class="mb-0">Today's Time Overview</h6>
+      </div>
+      <div class="card-body text-center">
+        <canvas id="timeChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-8">
+    <div class="card shadow-sm">
+      <div
+        class="card-header bg-transparent d-flex justify-content-between align-items-center"
+      >
+        <h6 class="mb-0">Upcoming Tasks</h6>
+        <div class="d-flex">
+          <!-- Search Panel -->
+          <form method="GET" action="{% url 'core:search-task' %}">
+            <div class="input-group">
+              <input
+                type="text"
+                name="query"
+                class="form-control bg-dark text-light border-light"
+                placeholder="Search tasks..."
+                value="{{ request.GET.query }}"
+              />
+              <button type="submit" class="btn btn-outline-light bg-dark">
+                <i class="bi bi-search text-white"></i>
+              </button>
+            </div>
+          </form>
+
+          <button
+            class="btn btn-sm btn-primary ms-2"
+            data-bs-toggle="modal"
+            data-bs-target="#addTaskModal"
+          >
+            <i class="bi bi-plus"></i> Add Task
+          </button>
+        </div>
+      </div>
+      <div class="table-responsive" style="max-height: 400px; overflow-y: auto">
+        <table class="table table-hover mb-0 align-middle">
+          <thead>
+            <tr>
+              <th>Status</th>
+              <th>Task</th>
+              <th>Prority</th>
+              <th>Category</th>
+              <th>Schedule</th>
+              <th>Duration</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for task in tasks %}
+            <tr>
+              <td>
+                <!-- Done/Undone -->
+                <form
+                  action="{% url 'core:done-task' %}"
+                  method="POST"
+                  class=""
+                >
+                  {% csrf_token %}
+                  <button
+                    type="submit"
+                    name="check"
+                    value="{{task.id}}"
+                    class="btn bg-transparent rounded-circle"
+                  >
+                    {% if task.is_done %}
+                    <i class="bi bi-check-circle text-success"></i>
+                    {% else %}
+                    <i class="bi bi-x-circle text-danger"></i>
+                    {% endif %}
+                  </button>
+                </form>
+              </td>
+
+              <td>{{ task.title|truncatechars:20 }}</td>
+
+              <td>
+                {% if task.priority == "3" %}
+                <span
+                  class="badge bg-danger text-dark me-2 px-0"
+                  style="width: 70px"
+                  >High</span
+                >
+                {% elif task.priority == "2" %}
+                <span
+                  class="badge bg-warning text-dark me-2 px-0"
+                  style="width: 70px"
+                  >Medium</span
+                >
+                {% elif task.priority == "1" %}
+                <span
+                  class="badge bg-info text-dark me-2 px-0"
+                  style="width: 70px"
+                  >Low</span
+                >
+                {% else %}
+                <span class="me-2" style="width: 70px"></span>
+                {% endif %}
+              </td>
+
+              <td>
+                {% if task.category %}
+                <span
+                  class="rounded border border-white text-white text-center px-2 py-1"
+                  style=""
+                >
+                  {{ task.category.title|truncatechars:10 }}
+                </span>
+                {% else %}
+                <span class="text-muted">No Category</span>
+                {% endif %}
+              </td>
+
+              <td>{{ task.scheduled_time|date:"g:i A, d M" }}</td>
+              <td>{{ task.duration }}</td>
+
+              <td>
+                <form
+                  method="POST"
+                  action="{% url 'core:task-detail' task.id %}"
+                >
+                  {% csrf_token %}
+                  <button type="submit" class="btn light bg-transparent">
+                    <i class="bi bi-eye"></i>
+                  </button>
+                </form>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Rewards Section -->
+<div class="card mt-4 shadow-sm">
+  <div class="card-header bg-transparent">
+    <h6>Recent Rewards</h6>
+  </div>
+  <ul class="list-group list-group-flush">
+    {% for task in recent_tasks %}
+    <li
+      class="list-group-item d-flex justify-content-between align-items-center bg-transparent"
+    >
+      {{ task.title }}
+      <span class="badge bg-success"
+        >+{% if task.coins %} {{ task.coins }} {% else %} 0 {% endif %}
+        coins</span
+      >
+    </li>
+    {% endfor %}
+
+    <li class="list-group-item text-center text-muted bg-transparent">
+      Keep going! Earn more rewards by completing tasks 💪
+    </li>
+  </ul>
+</div>
+
+<!-- Add Task Modal -->
+<div class="modal fade" id="addTaskModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content p-4 bg-dark text-light">
+      <div class="modal-header border-0">
+        <h5 class="modal-title">Add New Task</h5>
+        <button
+          type="button"
+          class="btn-close btn-close-white"
+          data-bs-dismiss="modal"
+        ></button>
+      </div>
+
+      <form method="POST" action="{% url 'core:add-task' %}">
+        {% csrf_token %}
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label">Title</label>
+            {{ form.title }}
+          </div>
+          <div class="mb-3 d-flex align-items-center">
+            <div class="flex-grow-1">
+              <label class="form-label">Priority</label>
+              {{ form.priority }}
+            </div>
+            &nbsp;&nbsp;
+            <div class="flex-grow-1">
+              <label class="form-label">Category</label>
+              {{ form.category }}
+            </div>
+            <button
+              type="button"
+              class="btn btn-primary ms-2 mt-4"
+              data-bs-target="#addCategoryModal"
+              data-bs-toggle="modal"
+            >
+              + Add Category
+            </button>
+          </div>
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Schedule Time</label>
+              {{ form.scheduled_time }}
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Duration (minutes)</label>
+              {{ form.duration }}
+            </div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Description</label>
+            {{ form.description }}
+          </div>
+        </div>
+        <div class="modal-footer border-0">
+          <button
+            type="button"
+            class="btn btn-secondary"
+            data-bs-dismiss="modal"
+          >
+            Cancel
+          </button>
+          <button type="submit" class="btn btn-success">Add Task</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Add Category Modal -->
+<div class="modal fade" id="addCategoryModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content p-4">
+      <div class="modal-header border-0">
+        <h5 class="modal-title">Add New Category</h5>
+        <button
+          type="button"
+          class="btn-close btn-close-white"
+          data-bs-dismiss="modal"
+        ></button>
+      </div>
+      <form method="POST" action="{% url 'core:add-category' %}">
+        {% csrf_token %}
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label">Category Name</label>
+            <input
+              name="title"
+              type="text"
+              class="form-control"
+              placeholder="e.g. Fitness, Work, Study"
+            />
+          </div>
+          <div>
+            <label class="form-label">Is it Valuable?</label>
+            <input type="checkbox" />
+          </div>
+        </div>
+        <div class="modal-footer border-0">
+          <button
+            type="button"
+            class="btn btn-secondary"
+            data-bs-dismiss="modal"
+          >
+            Cancel
+          </button>
+          <button type="submit" class="btn btn-success">Add Category</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+  const labels = {{ task_labels|safe }};
+  const durations = {{ task_durations|safe }};
+
+  const ctx = document.getElementById('timeChart');
+
+  new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: labels,
+      datasets: [{
+        data: durations,
+        backgroundColor: [
+          '#62d466', '#f49d1a', '#47abda', '#e54c7f', '#9C27B0',
+          '#FFC107', '#009688', '#764dbd', '#F44336'
+        ],
+      }]
+    },
+  });
+</script>
+{% endblock %}
