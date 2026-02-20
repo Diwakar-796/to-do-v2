@@ -6,7 +6,7 @@
   <div class="col-lg-4">
     <div class="card shadow-sm">
       <div class="card-header bg-transparent border-0">
-        <h6 class="mb-0">Today's Time Overview</h6>
+        <h6 class="mb-0">Today's Task Overview</h6>
       </div>
       <div class="card-body text-center">
         <canvas id="timeChart"></canvas>
@@ -282,8 +282,6 @@
   </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
 <script>
   const labels = {{ task_labels|safe }};
   const durations = {{ task_durations|safe }};
@@ -296,10 +294,6 @@
       labels: labels,
       datasets: [{
         data: durations,
-        backgroundColor: [
-          '#62d466', '#f49d1a', '#47abda', '#e54c7f', '#9C27B0',
-          '#FFC107', '#009688', '#764dbd', '#F44336'
-        ],
       }]
     },
   });

@@ -10,8 +10,11 @@
   <div class="row">
 
     <!-- LEFT SIDE -->
-    <div class="col-md-4">
-      <div class="card-body text-center card shadow-sm">
+    <div class="col-md-4 card-body card shadow-sm">
+      <div class="card-header bg-transparent border-0">
+        <h6 class="mb-2">Total Task Overview</h6>
+      </div>
+      <div class="">
         <canvas id="timeChart"></canvas>
       </div>
 
@@ -93,9 +96,6 @@
   </div>
 </div>
 
-<!-- CHART JS -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
 <script>
   const labels = {{ task_labels|safe }};
   const durations = {{ task_durations|safe }};
@@ -108,10 +108,6 @@
       labels: labels,
       datasets: [{
         data: durations,
-        backgroundColor: [
-          '#62d466', '#f49d1a', '#47abda', '#e54c7f', '#9C27B0', 
-          '#FFC107', '#009688', '#764dbd', '#F44336'
-        ],
       }]
     },
   });
