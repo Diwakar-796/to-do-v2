@@ -50,6 +50,7 @@
       <ul class="navbar-nav ms-auto">
         <li class="nav-item"><a class="nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}" href="{% url 'core:home' %}">Dashboard</a></li>
         <li class="nav-item"><a class="nav-link {% if request.resolver_match.url_name == 'notifications' %}active{% endif %}" href="{% url 'core:notifications' %}">Notifications</a></li>
+        <li class="nav-item"><a class="nav-link {% if request.resolver_match.url_name == 'analytics' %}active{% endif %}" href="{% url 'core:analytics' %}">Analytics</a></li>
         {% if user.is_authenticated %}
           <li class="nav-item"><a class="nav-link {% if request.resolver_match.url_name == 'profile' %}active{% endif %}" href="{% url 'auths:profile' %}">Profile</a></li>
         {% else %}

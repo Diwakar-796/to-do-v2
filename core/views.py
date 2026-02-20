@@ -4,7 +4,7 @@ from core.forms import TaskForm
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
-from datetime import timedelta
+from datetime import timedelta, datetime
 from django.db.models import Q
 
 # Create your views here.
@@ -233,3 +233,47 @@ def mark_notification_read(request, id):
     notification.is_read = True
     notification.save()
     return redirect('core:notifications')
+
+@login_required
+def analytics(request):
+    total_tasks = Task.objects.filter(user=request.user).count()
+    completed_tasks = Task.objects.filter(user=request.user, is_done=True).count()
+    pending_tasks = total_tasks - completed_tasks
+
+    if request.method == 'GET':
+        today = timezone.localtime().date()
+
+        start_date = request.GET.get('start')
+        end_date = request.GET.get('end')
+
+        if start_date and end_date:
+            start = datetime.fromisoformat(start_date)
+            end = datetime.fromisoformat(end_date)
+        else:
+            start = today - timedelta(days=7)
+            end = today
+        
+        tasks = Task.objects.filter(user=request.user, is_done=True, updated_at__date__range=[start, end])
+
+        task_labels = []
+        task_durations = []
+        time_spent = 0
+
+        for task in tasks:
+            if task.duration:
+                task_labels.append(task.title)
+                task_durations.append(task.duration)
+                time_spent = time_spent + task.duration
+
+        context = {
+            'tasks': tasks,
+            'time_spent': time_spent,
+            'total_tasks': total_tasks,
+            'completed_tasks': completed_tasks,
+            'pending_tasks': pending_tasks,
+
+            'task_labels': task_labels,
+            'task_durations': task_durations,
+        }
+
+    return render(request, 'core/analytics.html', context)

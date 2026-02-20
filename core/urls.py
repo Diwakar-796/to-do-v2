@@ -17,6 +17,9 @@ urlpatterns = [
 
     path('about/', views.about_view, name='about'),
     path('feedback/', views.feedback_view, name='feedback'),
+
     path('notifications/', views.notifications_view, name='notifications'),
     path('notifications/mark_as_read/<int:id>/', views.mark_notification_read, name='mark_notification_read'),
+
+    path('analytics/', views.analytics, name='analytics'),
 ]
