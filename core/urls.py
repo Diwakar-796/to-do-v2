@@ -15,6 +15,8 @@ urlpatterns = [
 
     path('add-category/', views.add_category, name='add-category'),
 
-    path('about/', views.about, name='about'),
+    path('about/', views.about_view, name='about'),
     path('feedback/', views.feedback_view, name='feedback'),
+    path('notifications/', views.notifications_view, name='notifications'),
+    path('notifications/mark_as_read/<int:id>/', views.mark_notification_read, name='mark_notification_read'),
 ]

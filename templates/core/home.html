@@ -128,15 +128,13 @@
               <td>{{ task.duration }}</td>
 
               <td>
-                <form
-                  method="POST"
-                  action="{% url 'core:task-detail' task.id %}"
+                <a
+                  href="{% url 'core:task-detail' task.id %}"
                 >
-                  {% csrf_token %}
                   <button type="submit" class="btn light bg-transparent">
                     <i class="bi bi-eye"></i>
                   </button>
-                </form>
+                </a>
               </td>
             </tr>
             {% endfor %}

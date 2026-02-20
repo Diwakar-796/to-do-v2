@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from core.models import Task, Category, Feedback
+from core.models import Task, Category, Feedback, Notification
 from core.forms import TaskForm
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -8,6 +8,26 @@ from datetime import timedelta
 from django.db.models import Q
 
 # Create your views here.
+
+def check_notifications(user):
+    now = timezone.now()
+
+    tasks = Task.objects.filter(
+        user=user,
+        is_done=False,
+        is_notified=False,
+        scheduled_time__lte=now
+    )
+
+    for task in tasks:
+        Notification.objects.create(
+            user=user,
+            task=task,
+            message=f"You scheduled {task.title} for {task.duration} minutes."
+        )
+
+        task.is_notified = True
+        task.save()
 
 def home(request):
     form = TaskForm()
@@ -31,6 +51,8 @@ def home(request):
         remaining_task = tasks.count() - total_completed_task
         recent_tasks = Task.objects.filter(user=request.user, is_done=True, updated_at__date=yesterday)
         categories = Category.objects.filter(user=request.user)
+
+        check_notifications(request.user)
 
         for task in tasks:
             if task.duration:
@@ -61,7 +83,7 @@ def add_task(request):
         if form.is_valid():
             task = form.save(commit=False)
             task.user = request.user
-            form.save()
+            task.save()
             messages.success(request, 'Task added successfully!')
             return redirect('core:home')
         else:
@@ -75,14 +97,22 @@ def done_task(request):
         user = request.user
         task_id = request.POST.get('check')
         task = Task.objects.get(user=request.user, id=task_id)
+        notification = Notification.objects.filter(user=request.user, task=task).first()
 
         if task.is_done:
             task.is_done = False
+            task.is_notified = False
+            if notification:
+                notification.is_read = False
+                notification.save()
             if task.duration:
                 user.coins_earned -= task.duration
                 task.coins = 0
         else:
             task.is_done = True
+            if notification:
+                notification.is_read = True
+                notification.save()
             if task.duration:
                 task.coins = task.duration
                 user.coins_earned += task.duration
@@ -126,7 +156,7 @@ def search_task(request):
         task_durations = []
 
         query = request.GET.get('query')
-        tasks = Task.objects.filter(Q(title__icontains=query) | Q(category__title__icontains=query) | Q(description__icontains=query))
+        tasks = Task.objects.filter(user=request.user).filter(Q(title__icontains=query) | Q(category__title__icontains=query) | Q(description__icontains=query))
         total_completed_task = tasks.filter(is_done=True).count()
         remaining_task = tasks.count() - total_completed_task
 
@@ -173,7 +203,7 @@ def add_category(request):
             messages.error(request, 'Something went wrong!')
     return render(request, 'core/home.html')
 
-def about(request):
+def about_view(request):
     return render(request, 'core/about.html')
     
 @login_required
@@ -191,4 +221,15 @@ def feedback_view(request):
             messages.error(request, 'Message can not be empty.')
         
     return render(request, 'core/feedback.html')
-    
+
+@login_required
+def notifications_view(request):
+    notifications = Notification.objects.filter(user=request.user, is_read=False)
+    return render(request, 'core/notifications.html', {'notifications': notifications})
+
+@login_required
+def mark_notification_read(request, id):
+    notification = Notification.objects.get(user=request.user, id=id)
+    notification.is_read = True
+    notification.save()
+    return redirect('core:notifications')
